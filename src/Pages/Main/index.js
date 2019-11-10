@@ -3,7 +3,7 @@ import { FaGithubAlt, FaPlus, FaSpinner } from 'react-icons/fa';
 
 import api from '../../Services/api';
 
-import { Container, SubmitButton, Form } from './styles';
+import { Container, SubmitButton, Form, List } from './styles';
 
 export default class Main extends Component {
   state = {
@@ -11,6 +11,23 @@ export default class Main extends Component {
     repositories: [],
     loading: false,
   };
+
+  // Carregar dados do localStorage
+  componentDidMount() {
+    const repositories = localStorage.getItem('repositories');
+    if (repositories) {
+      this.setState({ repositories: JSON.parse(repositories) });
+    }
+  }
+
+  // Salvar dados do LocalStorage
+  componentDidUpdate(_, prevState) {
+    const { repositories } = this.state;
+
+    if (prevState.repositories !== repositories) {
+      localStorage.setItem('repositories', JSON.stringify(repositories));
+    }
+  }
 
   handleChangeInput = e => {
     this.setState({ newRepo: e.target.value });
@@ -36,7 +53,7 @@ export default class Main extends Component {
   };
 
   render() {
-    const { newRepo, loading } = this.state;
+    const { newRepo, repositories, loading } = this.state;
     return (
       <Container>
         <h1>
@@ -54,11 +71,20 @@ export default class Main extends Component {
           <SubmitButton loading={loading}>
             {loading ? (
               <FaSpinner color="#fff" size={14} />
-            ) :
-              (
-                <FaPlus color="#fff" size={14} />)}
+            ) : (
+              <FaPlus color="#fff" size={14} />
+            )}
           </SubmitButton>
         </Form>
+
+        <List>
+          {repositories.map(repository => (
+            <li key={repository.name}>
+              <span>{repository.name}</span>
+              <a href="#">Detalhes</a>
+            </li>
+          ))}
+        </List>
       </Container>
     );
   }
